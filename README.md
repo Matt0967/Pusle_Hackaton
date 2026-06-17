@@ -13,7 +13,7 @@ Le MVP utilise des mocks deterministes de l'API Eco2mix RTE/Data Gouv et d'Engie
 
 ## Deploiement GitHub Pages
 
-Le projet est configure pour etre publie sur GitHub Pages via GitHub Actions.
+Le projet est configure pour etre publie sur GitHub Pages.
 
 URL attendue apres deploiement :
 
@@ -26,9 +26,18 @@ Commandes utiles :
 ```bash
 npm run build
 npm run build:gh-pages
+npm run build:docs
 ```
 
-Le workflow `.github/workflows/deploy-pages.yml` publie automatiquement `dist/` a chaque push sur `main`. Dans les reglages GitHub du depot, Pages doit utiliser la source **GitHub Actions**.
+Option la plus simple dans les reglages GitHub du depot :
+
+- Source : **Deploy from a branch**
+- Branch : `main`
+- Folder : `/docs`
+
+`npm run build:docs` genere le site statique dans `docs/`, pret pour GitHub Pages.
+
+Le workflow `.github/workflows/deploy-pages.yml` est aussi present si Pages est configure en source **GitHub Actions**.
 
 ## Architecture cible
 
