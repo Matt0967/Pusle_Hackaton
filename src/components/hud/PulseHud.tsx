@@ -89,6 +89,7 @@ export function PulseHud({ audio, oracleVoice, onOpenMenu }: PulseHudProps) {
       <DraggableHudPanel
         storageId="game-state"
         title="Etat du jeu"
+        tourId="game-state"
         className="w-[min(92vw,460px)]"
         defaultPosition={gameStateDefaultPosition}
       >
@@ -105,7 +106,10 @@ export function PulseHud({ audio, oracleVoice, onOpenMenu }: PulseHudProps) {
           {dataError ? <div className="mt-2 text-sm text-pulse-coral">{dataError}</div> : null}
       </DraggableHudPanel>
 
-      <div className="pointer-events-auto fixed right-4 top-4 z-40 flex shrink-0 items-center gap-2 rounded-lg border border-white/10 bg-black/35 p-1 shadow-hud backdrop-blur-md sm:right-5 sm:top-5">
+      <div
+        className="pointer-events-auto fixed right-4 top-4 z-40 flex shrink-0 items-center gap-2 rounded-lg border border-white/10 bg-black/35 p-1 shadow-hud backdrop-blur-md sm:right-5 sm:top-5"
+        data-tour="toolbar"
+      >
           <button
             className="hud-icon-button"
             type="button"
@@ -204,6 +208,7 @@ export function PulseHud({ audio, oracleVoice, onOpenMenu }: PulseHudProps) {
       <DraggableHudPanel
         storageId="grid-stats"
         title="Reseau et bouclier"
+        tourId="grid-stats"
         className="hud-stats-panel w-[min(92vw,380px)]"
         defaultCollapsed={gridStatsDefaultCollapsed}
         defaultPosition={gridStatsDefaultPosition}
@@ -237,7 +242,7 @@ export function PulseHud({ audio, oracleVoice, onOpenMenu }: PulseHudProps) {
       </DraggableHudPanel>
 
       <div className="pointer-events-none fixed bottom-4 left-4 right-4 z-10 grid gap-3 sm:bottom-5 sm:left-5 sm:right-5 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-end">
-        <section className="hud-panel pointer-events-auto">
+        <section className="hud-panel pointer-events-auto" data-tour="quest-panel">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="min-w-0">
               <div className="flex items-center gap-2 text-sm font-semibold text-pulse-amber">
@@ -247,7 +252,7 @@ export function PulseHud({ audio, oracleVoice, onOpenMenu }: PulseHudProps) {
               <h1 className="mt-1 truncate text-xl font-semibold text-white">{activeQuest.title}</h1>
               <p className="mt-1 text-sm leading-5 text-stone-300">{activeQuest.gesture}</p>
             </div>
-            <button className="hud-action-button" type="button" onClick={completeQuest}>
+            <button className="hud-action-button" type="button" onClick={completeQuest} data-tour="quest-validate">
               <CheckCircle2 size={18} />
               Valider
             </button>
@@ -276,7 +281,7 @@ export function PulseHud({ audio, oracleVoice, onOpenMenu }: PulseHudProps) {
           </div>
         </section>
 
-        <section className="hud-panel pointer-events-auto">
+        <section className="hud-panel pointer-events-auto" data-tour="upgrades-panel">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="text-sm font-semibold uppercase tracking-[0.18em] text-stone-300">Upgrades</div>
             <div className="rounded-md bg-pulse-green/15 px-2 py-1 text-sm font-semibold text-pulse-green">{city.civicWatts} W</div>
@@ -295,6 +300,7 @@ export function PulseHud({ audio, oracleVoice, onOpenMenu }: PulseHudProps) {
                   disabled={disabled}
                   onClick={() => buyUpgrade(upgrade.id)}
                   title={upgrade.description}
+                  data-tour={upgrade.id === "solar-roofs" ? "upgrade-first" : undefined}
                 >
                   <span className="min-w-0">
                     <span className="block truncate text-left text-sm font-semibold text-white">{upgrade.label}</span>
@@ -310,12 +316,22 @@ export function PulseHud({ audio, oracleVoice, onOpenMenu }: PulseHudProps) {
         </section>
       </div>
 
-      <TutorialOverlay open={tutorialOpen} onClose={closeTutorial} />
+      <TutorialOverlay
+        open={tutorialOpen}
+        onClose={closeTutorial}
+        completedQuests={player.completedQuests}
+        shieldCharge={city.shieldCharge}
+        upgradeLevelTotal={Object.values(player.upgrades).reduce((total, level) => total + level, 0)}
+        hasAffordableUpgrade={CITY_UPGRADES.some((upgrade) => {
+          const level = player.upgrades[upgrade.id];
+          return level < upgrade.maxLevel && player.civicWatts >= upgradeCost(upgrade, level);
+        })}
+      />
     </div>
   );
 }
 
-const TUTORIAL_STORAGE_KEY = "pulse:onboarding:v1";
+const TUTORIAL_STORAGE_KEY = "pulse:onboarding:v2";
 
 function hasSeenTutorial() {
   try {

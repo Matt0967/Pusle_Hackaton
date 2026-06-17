@@ -12,6 +12,7 @@
     "lint": "tsc --noEmit",
     "verify:render": "node scripts/verify-render.mjs",
     "verify:onboarding": "node scripts/verify-onboarding.mjs",
+    "verify:guided-tutorial": "node scripts/verify-guided-tutorial.mjs",
     "verify:hud-drag": "node scripts/verify-hud-drag.mjs"
   },
   "dependencies": {

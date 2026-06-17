@@ -21,6 +21,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 820 }, deviceScaleFactor: 1 });
   await page.goto(targetUrl, { waitUntil: "domcontentloaded" });
   await page.evaluate(() => window.localStorage.removeItem("pulse:onboarding:v1"));
+  await page.evaluate(() => window.localStorage.removeItem("pulse:onboarding:v2"));
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Entrer dans la citadelle" }).click();
   await page.getByRole("dialog", { name: "Nara t'ouvre la porte" }).waitFor({ timeout: 5000 });

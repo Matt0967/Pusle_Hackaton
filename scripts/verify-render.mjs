@@ -57,6 +57,7 @@ async function verifyViewport(browser, name, width, height) {
   page.on("pageerror", (error) => browserLogs.push(`pageerror: ${error.message}`));
   await page.addInitScript(() => {
     window.localStorage.setItem("pulse:onboarding:v1", "playwright");
+    window.localStorage.setItem("pulse:onboarding:v2", "playwright");
   });
 
   let cityPixels;

@@ -21,6 +21,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 820 }, deviceScaleFactor: 1 });
   await page.addInitScript(() => {
     window.localStorage.setItem("pulse:onboarding:v1", "playwright");
+    window.localStorage.setItem("pulse:onboarding:v2", "playwright");
     window.localStorage.removeItem("pulse:hud-position:desktop:game-state");
   });
   await page.goto(targetUrl, { waitUntil: "domcontentloaded" });

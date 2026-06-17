@@ -6,6 +6,7 @@ interface DraggableHudPanelProps {
   title: string;
   defaultPosition: (viewport: ViewportSize) => Point;
   defaultCollapsed?: (viewport: ViewportSize) => boolean;
+  tourId?: string;
   className?: string;
   children: React.ReactNode;
 }
@@ -22,7 +23,7 @@ interface ViewportSize {
 
 const PANEL_MARGIN = 12;
 
-export function DraggableHudPanel({ storageId, title, defaultPosition, defaultCollapsed, className, children }: DraggableHudPanelProps) {
+export function DraggableHudPanel({ storageId, title, defaultPosition, defaultCollapsed, tourId, className, children }: DraggableHudPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ pointerId: number; offsetX: number; offsetY: number } | null>(null);
   const [viewport, setViewport] = useState<ViewportSize>(() => getViewportSize());
@@ -138,6 +139,7 @@ export function DraggableHudPanel({ storageId, title, defaultPosition, defaultCo
   return (
     <section
       ref={panelRef}
+      data-tour={tourId}
       className={`hud-panel pointer-events-auto fixed z-20 ${collapsed ? "is-collapsed" : ""} ${className ?? ""}`}
       style={{ transform: `translate3d(${position.x}px, ${position.y}px, 0)` }}
     >
