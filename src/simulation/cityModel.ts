@@ -1,4 +1,10 @@
-import type { CityStatus, CityUpgradeDefinition, PlayerCityState, UpgradeId } from "../domain/city";
+import type {
+  CityStatus,
+  CityUpgradeDefinition,
+  CollectiveQuestState,
+  PlayerCityState,
+  UpgradeId,
+} from "../domain/city";
 import type { DerivedEnergyState } from "../domain/energy";
 import { clamp } from "../utils/math";
 
@@ -6,12 +12,23 @@ export const INITIAL_PLAYER_CITY: PlayerCityState = {
   civicWatts: 80,
   shieldCharge: 18,
   completedQuests: 0,
+  estimatedKwhSaved: 0,
+  estimatedCo2KgAvoided: 0,
+  questLog: [],
   upgrades: {
     "solar-roofs": 0,
     insulation: 0,
     "urban-gardens": 0,
     "battery-loop": 0,
   },
+};
+
+export const INITIAL_COLLECTIVE_QUEST: CollectiveQuestState = {
+  districtName: "Quartier Aurore",
+  targetWatts: 520,
+  progressWatts: 86,
+  stability: 24,
+  members: 7,
 };
 
 export const CITY_UPGRADES: CityUpgradeDefinition[] = [

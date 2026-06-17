@@ -58,6 +58,16 @@ button {
   transform: scale(0.96);
 }
 
+.hud-icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.hud-icon-button:disabled:hover {
+  color: rgba(245, 245, 244, 0.72);
+  background: transparent;
+}
+
 .hud-drag-handle {
   display: inline-flex;
   min-width: 0;

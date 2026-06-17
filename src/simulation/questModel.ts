@@ -9,6 +9,7 @@ export const QUESTS: QuestDefinition[] = [
     durationMinutes: 60,
     rewardWatts: 35,
     shieldReward: 20,
+    estimatedKwhSaved: 0.18,
     trigger: "peak",
   },
   {
@@ -18,6 +19,7 @@ export const QUESTS: QuestDefinition[] = [
     durationMinutes: 90,
     rewardWatts: 45,
     shieldReward: 24,
+    estimatedKwhSaved: 0.72,
     trigger: "peak",
   },
   {
@@ -27,6 +29,7 @@ export const QUESTS: QuestDefinition[] = [
     durationMinutes: 30,
     rewardWatts: 28,
     shieldReward: 10,
+    estimatedKwhSaved: 0.24,
     trigger: "renewable",
   },
   {
@@ -36,6 +39,7 @@ export const QUESTS: QuestDefinition[] = [
     durationMinutes: 60,
     rewardWatts: 42,
     shieldReward: 26,
+    estimatedKwhSaved: 0.95,
     trigger: "carbon",
   },
   {
@@ -45,6 +49,7 @@ export const QUESTS: QuestDefinition[] = [
     durationMinutes: 60,
     rewardWatts: 30,
     shieldReward: 14,
+    estimatedKwhSaved: 0.34,
     trigger: "sobriety",
   },
 ];

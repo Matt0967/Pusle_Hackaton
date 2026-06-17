@@ -1,15 +1,19 @@
 import {
   Activity,
   BatteryCharging,
+  Bot,
+  CalendarClock,
   CheckCircle2,
   CloudLightning,
   Gauge,
   HelpCircle,
   Leaf,
+  Maximize2,
   Menu,
   Radio,
   Shield,
   Sun,
+  Users,
   Volume2,
   VolumeX,
   Wind,
@@ -17,23 +21,30 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { PulseAudioControls } from "../../audio/usePulseAudio";
+import type { OracleVoiceControls } from "../../audio/useOracleVoice";
 import { CITY_UPGRADES, upgradeCost } from "../../simulation/cityModel";
+import { getNextFavorableWindow } from "../../simulation/forecastModel";
 import { useCityStatus, usePulseStore } from "../../store/pulseStore";
 import { formatMw, formatPercent, formatTime } from "../../utils/format";
 import { DraggableHudPanel } from "./DraggableHudPanel";
+import { TimelinePanel } from "./TimelinePanel";
 import { TutorialOverlay } from "./TutorialOverlay";
 
 interface PulseHudProps {
   audio: PulseAudioControls;
+  oracleVoice: OracleVoiceControls;
   onOpenMenu: () => void;
 }
 
-export function PulseHud({ audio, onOpenMenu }: PulseHudProps) {
+export function PulseHud({ audio, oracleVoice, onOpenMenu }: PulseHudProps) {
   const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [timelineOpen, setTimelineOpen] = useState(false);
   const mode = usePulseStore((state) => state.mode);
   const snapshot = usePulseStore((state) => state.snapshot);
   const derived = usePulseStore((state) => state.derived);
+  const forecast = usePulseStore((state) => state.forecast);
   const player = usePulseStore((state) => state.player);
+  const collective = usePulseStore((state) => state.collective);
   const activeQuest = usePulseStore((state) => state.activeQuest);
   const setMode = usePulseStore((state) => state.setMode);
   const completeQuest = usePulseStore((state) => state.completeQuest);
@@ -58,11 +69,20 @@ export function PulseHud({ audio, onOpenMenu }: PulseHudProps) {
   const gridStatsDefaultPosition = useCallback(
     (viewport: { width: number }) => ({
       x: viewport.width < 760 ? 16 : Math.max(16, viewport.width - 400),
-      y: viewport.width < 760 ? 16 : 164,
+      y: viewport.width < 760 ? 258 : 164,
     }),
     [],
   );
   const gridStatsDefaultCollapsed = useCallback((viewport: { width: number }) => viewport.width < 760, []);
+  const nextFavorableWindow = getNextFavorableWindow(forecast);
+
+  const enterOracleFullscreen = useCallback(() => {
+    setMode("oracle");
+
+    if (!document.fullscreenElement) {
+      void document.documentElement.requestFullscreen?.();
+    }
+  }, [setMode]);
 
   return (
     <div className="pointer-events-none absolute inset-0 z-10 p-4 sm:p-5">
@@ -85,7 +105,7 @@ export function PulseHud({ audio, onOpenMenu }: PulseHudProps) {
           {dataError ? <div className="mt-2 text-sm text-pulse-coral">{dataError}</div> : null}
       </DraggableHudPanel>
 
-      <div className="pointer-events-auto fixed right-4 top-4 z-20 flex shrink-0 items-center gap-2 rounded-lg border border-white/10 bg-black/35 p-1 shadow-hud backdrop-blur-md sm:right-5 sm:top-5">
+      <div className="pointer-events-auto fixed right-4 top-4 z-40 flex shrink-0 items-center gap-2 rounded-lg border border-white/10 bg-black/35 p-1 shadow-hud backdrop-blur-md sm:right-5 sm:top-5">
           <button
             className="hud-icon-button"
             type="button"
@@ -123,6 +143,34 @@ export function PulseHud({ audio, onOpenMenu }: PulseHudProps) {
             {audio.enabled ? <Volume2 size={18} /> : <VolumeX size={18} />}
           </button>
           <button
+            className={`hud-icon-button ${oracleVoice.enabled ? "is-active" : ""}`}
+            type="button"
+            onClick={oracleVoice.toggle}
+            disabled={!oracleVoice.supported}
+            aria-label="Voix Oracle"
+            title={oracleVoice.supported ? "Voix Oracle" : "Voix Oracle indisponible"}
+          >
+            <Bot size={18} />
+          </button>
+          <button
+            className="hud-icon-button"
+            type="button"
+            onClick={enterOracleFullscreen}
+            aria-label="Oracle plein ecran"
+            title="Oracle plein ecran"
+          >
+            <Maximize2 size={18} />
+          </button>
+          <button
+            className={`hud-icon-button ${timelineOpen ? "is-active" : ""}`}
+            type="button"
+            onClick={() => setTimelineOpen((current) => !current)}
+            aria-label="Timeline 24 heures"
+            title="Timeline 24 heures"
+          >
+            <CalendarClock size={18} />
+          </button>
+          <button
             className="hud-icon-button"
             type="button"
             onClick={() => setTutorialOpen(true)}
@@ -132,6 +180,26 @@ export function PulseHud({ audio, onOpenMenu }: PulseHudProps) {
             <HelpCircle size={18} />
           </button>
       </div>
+
+      {nextFavorableWindow && !timelineOpen ? (
+        <button
+          className="hud-panel pointer-events-auto fixed right-4 top-[4.75rem] z-30 flex max-w-[min(92vw,360px)] items-center gap-3 px-3 py-2 text-left sm:right-5"
+          type="button"
+          onClick={() => setTimelineOpen(true)}
+        >
+          <div className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-pulse-green/15 text-pulse-green">
+            <Leaf size={16} />
+          </div>
+          <div className="min-w-0">
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-pulse-green">Fenetre favorable</div>
+            <div className="truncate text-sm text-stone-200">
+              Vers {formatTime(nextFavorableWindow.timestamp)} · {nextFavorableWindow.reason}
+            </div>
+          </div>
+        </button>
+      ) : null}
+
+      <TimelinePanel open={timelineOpen} forecast={forecast} onClose={() => setTimelineOpen(false)} />
 
       <DraggableHudPanel
         storageId="grid-stats"
@@ -184,10 +252,27 @@ export function PulseHud({ audio, onOpenMenu }: PulseHudProps) {
               Valider
             </button>
           </div>
-          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <div className="mt-3 hidden gap-2 sm:grid sm:grid-cols-4">
             <QuestReward label="Duree" value={`${activeQuest.durationMinutes} min`} />
             <QuestReward label="Gain" value={`+${activeQuest.rewardWatts} W civiques`} />
             <QuestReward label="Bouclier" value={`+${activeQuest.shieldReward} %`} />
+            <QuestReward label="Impact" value={`~${activeQuest.estimatedKwhSaved.toFixed(2)} kWh`} />
+          </div>
+          <div className="mt-3 hidden gap-2 md:grid md:grid-cols-[1.1fr_0.9fr]">
+            <div className="rounded-md bg-white/[0.07] px-3 py-2">
+              <div className="mb-1 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-stone-400">
+                <Users size={14} />
+                {collective.districtName}
+              </div>
+              <Meter label={`${collective.members} veilleurs actifs`} value={collective.progressWatts / collective.targetWatts} tone="green" />
+            </div>
+            <div className="rounded-md bg-white/[0.07] px-3 py-2">
+              <div className="text-xs text-stone-400">Impact estime</div>
+              <div className="mt-1 text-sm font-semibold text-white">
+                {player.estimatedKwhSaved.toFixed(2)} kWh · {formatImpactCo2(player.estimatedCo2KgAvoided)}
+              </div>
+              <div className="mt-0.5 text-xs text-stone-400">{player.completedQuests} quetes validees</div>
+            </div>
           </div>
         </section>
 
@@ -288,6 +373,14 @@ function QuestReward({ label, value }: { label: string; value: string }) {
       <div className="mt-1 text-sm font-semibold text-white">{value}</div>
     </div>
   );
+}
+
+function formatImpactCo2(valueKg: number) {
+  if (valueKg < 1) {
+    return `${Math.round(valueKg * 1000)} gCO2 evites`;
+  }
+
+  return `${valueKg.toFixed(1)} kgCO2 evites`;
 }
 
 function toneFor(stress: string | undefined): "green" | "amber" | "coral" | "cyan" {

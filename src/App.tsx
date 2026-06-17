@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { PulseCanvas } from "./scene/PulseCanvas";
 import { PulseHud } from "./components/hud/PulseHud";
 import { usePulseAudio } from "./audio/usePulseAudio";
+import { useOracleVoice } from "./audio/useOracleVoice";
 import { usePulseStore } from "./store/pulseStore";
 import { MainMenu } from "./components/menu/MainMenu";
 
@@ -10,9 +11,11 @@ export default function App() {
   const mode = usePulseStore((state) => state.mode);
   const snapshot = usePulseStore((state) => state.snapshot);
   const derived = usePulseStore((state) => state.derived);
+  const forecast = usePulseStore((state) => state.forecast);
   const refreshEnergy = usePulseStore((state) => state.refreshEnergy);
   const refreshForecast = usePulseStore((state) => state.refreshForecast);
   const audio = usePulseAudio(snapshot, derived);
+  const oracleVoice = useOracleVoice(mode, snapshot, derived, forecast);
 
   useEffect(() => {
     void refreshEnergy();
@@ -38,7 +41,7 @@ export default function App() {
       {screen === "menu" ? (
         <MainMenu snapshot={snapshot} derived={derived} onStart={() => setScreen("game")} />
       ) : (
-        <PulseHud audio={audio} onOpenMenu={() => setScreen("menu")} />
+        <PulseHud audio={audio} oracleVoice={oracleVoice} onOpenMenu={() => setScreen("menu")} />
       )}
     </main>
   );

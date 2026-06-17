@@ -4,7 +4,27 @@ export interface PlayerCityState {
   civicWatts: number;
   shieldCharge: number;
   completedQuests: number;
+  estimatedKwhSaved: number;
+  estimatedCo2KgAvoided: number;
+  questLog: QuestImpactEntry[];
   upgrades: Record<UpgradeId, number>;
+}
+
+export interface QuestImpactEntry {
+  id: string;
+  title: string;
+  completedAt: string;
+  estimatedKwhSaved: number;
+  estimatedCo2KgAvoided: number;
+}
+
+export interface CollectiveQuestState {
+  districtName: string;
+  targetWatts: number;
+  progressWatts: number;
+  stability: number;
+  members: number;
+  lastPulseAt?: string;
 }
 
 export interface CityUpgradeDefinition {
@@ -29,5 +49,6 @@ export interface QuestDefinition {
   durationMinutes: number;
   rewardWatts: number;
   shieldReward: number;
+  estimatedKwhSaved: number;
   trigger: "carbon" | "peak" | "renewable" | "sobriety";
 }
