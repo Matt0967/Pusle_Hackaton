@@ -11,6 +11,25 @@ npm run dev
 
 Le MVP utilise des mocks deterministes de l'API Eco2mix RTE/Data Gouv et d'Engie Open Data. Aucun token n'est necessaire pour jouer en local.
 
+## Deploiement GitHub Pages
+
+Le projet est configure pour etre publie sur GitHub Pages via GitHub Actions.
+
+URL attendue apres deploiement :
+
+```text
+https://matt0967.github.io/Pusle_Hackaton/
+```
+
+Commandes utiles :
+
+```bash
+npm run build
+npm run build:gh-pages
+```
+
+Le workflow `.github/workflows/deploy-pages.yml` publie automatiquement `dist/` a chaque push sur `main`. Dans les reglages GitHub du depot, Pages doit utiliser la source **GitHub Actions**.
+
 ## Architecture cible
 
 ```text
