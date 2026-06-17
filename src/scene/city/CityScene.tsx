@@ -266,29 +266,39 @@ function EnergyPylons({ stress }: { stress: string }) {
 }
 
 function EnergyCore({ vitality, stress }: { vitality: number; stress: string }) {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   const color = stressColor(stress);
 
   useFrame(({ clock }) => {
-    if (!meshRef.current) {
+    if (!groupRef.current) {
       return;
     }
 
     const pulse = 1 + Math.sin(clock.elapsedTime * (1.6 + vitality)) * 0.06;
-    meshRef.current.scale.setScalar(pulse);
-    meshRef.current.rotation.y += 0.01 + vitality * 0.006;
+    groupRef.current.scale.setScalar(pulse);
+    groupRef.current.rotation.y += 0.01 + vitality * 0.006;
   });
 
   return (
-    <mesh ref={meshRef} position={[0, 1.15, 0]} castShadow>
-      <icosahedronGeometry args={[0.78, 1]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={0.38 + vitality * 0.28}
-        roughness={0.4}
-      />
-    </mesh>
+    <group ref={groupRef} position={[0, 1.05, 0]}>
+      <mesh castShadow>
+        <icosahedronGeometry args={[0.44, 1]} />
+        <meshStandardMaterial
+          color={color}
+          emissive={color}
+          emissiveIntensity={0.48 + vitality * 0.36}
+          roughness={0.36}
+        />
+      </mesh>
+      <mesh rotation={[Math.PI / 2, 0, 0]}>
+        <torusGeometry args={[0.62, 0.025, 8, 7]} />
+        <meshStandardMaterial color={color} emissive={color} emissiveIntensity={0.34 + vitality * 0.25} transparent opacity={0.72} />
+      </mesh>
+      <mesh rotation={[0.2, Math.PI / 2, 0]}>
+        <torusGeometry args={[0.72, 0.018, 8, 7]} />
+        <meshStandardMaterial color="#5de0d7" emissive="#5de0d7" emissiveIntensity={0.22} transparent opacity={0.44} />
+      </mesh>
+    </group>
   );
 }
 
@@ -304,6 +314,7 @@ function WindTurbines({ speed }: { speed: number }) {
 
 function WindTurbine({ position, speed }: { position: [number, number, number]; speed: number }) {
   const rotorRef = useRef<THREE.Group>(null);
+  const bladeLength = 0.56;
 
   useFrame(() => {
     if (rotorRef.current) {
@@ -319,11 +330,17 @@ function WindTurbine({ position, speed }: { position: [number, number, number]; 
       </mesh>
       <group ref={rotorRef} position={[0, 1.55, 0.04]}>
         {[0, 1, 2].map((blade) => (
-          <mesh key={blade} rotation={[0, 0, (blade * Math.PI * 2) / 3]} position={[0, 0.22, 0]}>
-            <boxGeometry args={[0.035, 0.48, 0.018]} />
-            <meshStandardMaterial color="#f3f8e9" roughness={0.42} />
-          </mesh>
+          <group key={blade} rotation={[0, 0, (blade * Math.PI * 2) / 3]}>
+            <mesh position={[0, bladeLength / 2, 0]}>
+              <boxGeometry args={[0.035, bladeLength, 0.018]} />
+              <meshStandardMaterial color="#f3f8e9" roughness={0.42} />
+            </mesh>
+          </group>
         ))}
+        <mesh>
+          <sphereGeometry args={[0.075, 10, 10]} />
+          <meshStandardMaterial color="#ff8b82" emissive="#ff6b6b" emissiveIntensity={0.2} roughness={0.38} />
+        </mesh>
       </group>
     </group>
   );
