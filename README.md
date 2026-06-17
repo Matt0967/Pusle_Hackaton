@@ -134,3 +134,7 @@ VITE_ENGIE_BASE_URL=
 ```
 
 Pour garder le prototype robuste en hackathon, le mode mock reste le fallback par defaut.
+
+## Licence
+
+MIT, voir `LICENSE`.
